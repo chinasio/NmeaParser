@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard1.4;net451;monoandroid50;xamarinios10;uap10.0</TargetFrameworks>
+    <TargetFrameworks>netstandard1.4;net451;monoandroid50;monoandroid70;xamarinios10;uap10.0</TargetFrameworks>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Configurations>Debug;Release</Configurations>
@@ -11,17 +11,18 @@
     <Description>An NMEA stream parser for serial port, bluetooth and file-based nmea simulation.</Description>
     <PackageTags>nmea winrt wpf uwp xamarin gps serialport bluetooth</PackageTags>
     <PackageId>SharpGIS.NmeaParser</PackageId>
-    <Version>1.9.0</Version>
+    <Version>1.11</Version>
     <PackageLicenseUrl>http://opensource.org/licenses/ms-pl.html</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/dotMorten/NmeaParser</PackageProjectUrl>
     <RepositoryUrl>https://github.com/dotMorten/NmeaParser</RepositoryUrl>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <Copyright>Copyright © Morten Nielsen 2015-2017</Copyright>
+    <Copyright>Copyright © Morten Nielsen 2015-2018</Copyright>
     <OutputPath>$(MSBuildThisFileDirectory)..\Bin\$(Configuration)</OutputPath>
     <PackageOutputPath>$(OutDir)</PackageOutputPath>
-    <AssemblyVersion>1.9.0.0</AssemblyVersion>
-    <FileVersion>1.9.0.0</FileVersion>
-    <PackageReleaseNotes>Added new GLONASS and GALILEO. Moved more GPS message to abstract base classes for better handling of multiple satelitte constellations.</PackageReleaseNotes>    
+    <AssemblyVersion>1.10.1.0</AssemblyVersion>
+    <FileVersion>1.10.1.0</FileVersion>
+    <PackageReleaseNotes>Fixed missing shutdown of Android location device.
+Exposed non-NMEA based Accuracy estimate on Android location device.</PackageReleaseNotes>    
   </PropertyGroup>
   
   <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.4'">
@@ -35,7 +36,11 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'monoandroid50'">
-    <DefineConstants>$(DefineConstants);XAMARIN</DefineConstants>
+    <DefineConstants>$(DefineConstants);XAMARIN;API_LEVEL_21</DefineConstants>
+    <Product>NMEA Parser - Android</Product>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'monoandroid70'">
+    <DefineConstants>$(DefineConstants);XAMARIN;API_LEVEL_24</DefineConstants>
     <Product>NMEA Parser - Android</Product>
   </PropertyGroup>
   

@@ -28,39 +28,32 @@ namespace NmeaParser
 	/// </summary>
 	public class SerialPortDevice : NmeaDevice
 	{
-		private System.IO.Ports.SerialPort m_port;
-
-		/// <summary>
-		/// Initializes a new instance of the <see cref="SerialPortDevice" /> class.
-		/// </summary>
-		/// <param name="port">The serial port.</param>
-		/// <exception cref="System.ArgumentNullException">port</exception>
-		public SerialPortDevice(System.IO.Ports.SerialPort port)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SerialPortDevice" /> class.
+        /// </summary>
+        /// <param name="port">The serial port.</param>
+        /// <exception cref="System.ArgumentNullException">port</exception>
+        public SerialPortDevice(System.IO.Ports.SerialPort port)
 		{
 			if (port == null)
 				throw new ArgumentNullException("port");
-			m_port = port;
+			Port = port;
 		}
 
-		/// <summary>
-		/// Gets the active serial port.
-		/// </summary>
-		public System.IO.Ports.SerialPort Port
-		{
-			get
-			{
-				return m_port;
-			}
-		}
+        /// <summary>
+        /// Gets the active serial port.
+        /// </summary>
+        public System.IO.Ports.SerialPort Port { get; }
 
-		/// <summary>
-		/// Creates the stream the NmeaDevice is working on top off.
-		/// </summary>
-		/// <returns></returns>
-		protected override Task<System.IO.Stream> OpenStreamAsync()
+        /// <summary>
+        /// Creates the stream the NmeaDevice is working on top off.
+        /// </summary>
+        /// <returns></returns>
+        protected override Task<System.IO.Stream> OpenStreamAsync()
 		{
-			m_port.Open();
-			return Task.FromResult<System.IO.Stream>(m_port.BaseStream);
+            if (!Port.IsOpen)
+                Port.Open();
+			return Task.FromResult<System.IO.Stream>(Port.BaseStream);
 		}
 
 		/// <summary>
@@ -70,8 +63,9 @@ namespace NmeaParser
 		/// <returns></returns>
 		protected override Task CloseStreamAsync(System.IO.Stream stream)
 		{
-			m_port.Close();
-			return Task.FromResult(true);
+            if (Port.IsOpen)
+                Port.Close();
+			return Task.FromResult<object>(null);
 		}
 
 		/// <summary>
@@ -81,10 +75,24 @@ namespace NmeaParser
 		/// <param name="offset">The zero-based byte offset in the buffer parameter at which to begin copying 
 		/// bytes to the port.</param>
 		/// <param name="count">The number of bytes to write.</param>
+        [Obsolete("Use WriteAsync")]
 		public void Write(byte[] buffer, int offset, int count)
 		{
-			m_port.Write(buffer, offset, count);
-		}
-	}
+			Port.Write(buffer, offset, count);
+        }
+
+        /// <inheritdoc />
+        public override bool CanWrite => true;
+
+        /// <inheritdoc />
+        public override Task WriteAsync(byte[] buffer, int offset, int length)
+        {
+            if (!Port.IsOpen)
+                throw new InvalidOperationException("Device not open");
+
+            Port.Write(buffer, offset, length);
+            return Task.FromResult<object>(null);
+        }
+    }
 }
 #endif
